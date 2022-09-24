@@ -54,14 +54,19 @@ export default class SongCard extends React.Component {
         this.props.moveCallback(sourceId, targetId);
     }
 
+    handleDoubleClick = (event) => {
+        event.stopPropagation();
+        console.log("song doubleclicked!");
+        this.props.editCallback(this.props.song);
+    }
+
     getItemNum = () => {
         return this.props.id.substring("playlist-song-".length);
     }
 
     render() {
-        const { song } = this.props;
+        const { song, index} = this.props;
         let num = this.getItemNum();
-        console.log("num: " + num);
         let itemClass = "playlister-song unselected-playlister-song"; 
         if (this.state.draggedTo) {
             itemClass = "playlister-song-dragged-to";
@@ -75,13 +80,14 @@ export default class SongCard extends React.Component {
                 onDragEnter={this.handleDragEnter}
                 onDragLeave={this.handleDragLeave}
                 onDrop={this.handleDrop}
+                onDoubleClick={this.handleDoubleClick}
                 draggable="true"
             >
                 {num}.
                 <a href = {'https://www.youtube.com/watch?v=' + song.youTubeId}>{song.title} by {song.artist}</a>
                 <input
                     type="button"
-                    id={"delete-list-"}
+                    id={"delete-song-" + index}
                     className="list-card-button"
                     value={"X"} 
                 />

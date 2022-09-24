@@ -2,8 +2,8 @@ import React from 'react';
 import './App.css';
 
 // IMPORT DATA MANAGEMENT AND TRANSACTION STUFF
-import DBManager from './db/DBManager';
 import jsTPS from './common/jsTPS.js';
+import DBManager from './db/DBManager';
 
 // OUR TRANSACTIONS
 import MoveSong_Transaction from './transactions/MoveSong_Transaction.js';
@@ -13,11 +13,13 @@ import DeleteListModal from './components/DeleteListModal.js';
 
 // THESE REACT COMPONENTS ARE IN OUR UI
 import Banner from './components/Banner.js';
+import EditSongModal from './components/EditSongModal';
 import EditToolbar from './components/EditToolbar.js';
 import PlaylistCards from './components/PlaylistCards.js';
 import SidebarHeading from './components/SidebarHeading.js';
 import SidebarList from './components/SidebarList.js';
 import Statusbar from './components/Statusbar.js';
+import EditSong_Transaction from './transactions/EditSong_Transaction';
 
 class App extends React.Component {
     constructor(props) {
@@ -35,6 +37,7 @@ class App extends React.Component {
         // SETUP THE INITIAL STATE
         this.state = {
             listKeyPairMarkedForDeletion : null,
+            listKeyPairMarkedForEdit : null,
             currentList : null,
             sessionData : loadedSessionData
         }
@@ -72,6 +75,7 @@ class App extends React.Component {
         // SHOULD BE DONE VIA ITS CALLBACK
         this.setState(prevState => ({
             listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
+            listKeyPairMarkedForEdit : prevState.listKeyPairMarkedForEdit,
             currentList: newList,
             sessionData: {
                 nextKey: prevState.sessionData.nextKey + 1,
@@ -109,6 +113,7 @@ class App extends React.Component {
         // AND FROM OUR APP STATE
         this.setState(prevState => ({
             listKeyPairMarkedForDeletion : null,
+            listKeyPairMarkedForEdit : prevState.listKeyPairMarkedForEdit,
             currentList: newCurrentList,
             sessionData: {
                 nextKey: prevState.sessionData.nextKey,
@@ -153,6 +158,7 @@ class App extends React.Component {
 
         this.setState(prevState => ({
             listKeyPairMarkedForDeletion : null,
+            listKeyPairMarkedForEdit : prevState.listKeyPairMarkedForEdit,
             sessionData: {
                 nextKey: prevState.sessionData.nextKey,
                 counter: prevState.sessionData.counter,
@@ -172,6 +178,7 @@ class App extends React.Component {
         let newCurrentList = this.db.queryGetList(key);
         this.setState(prevState => ({
             listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
+            listKeyPairMarkedForEdit : prevState.listKeyPairMarkedForEdit,
             currentList: newCurrentList,
             sessionData: this.state.sessionData
         }), () => {
@@ -184,6 +191,7 @@ class App extends React.Component {
     closeCurrentList = () => {
         this.setState(prevState => ({
             listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
+            listKeyPairMarkedForEdit : prevState.listKeyPairMarkedForEdit,
             currentList: null,
             sessionData: this.state.sessionData
         }), () => {
@@ -195,6 +203,8 @@ class App extends React.Component {
     setStateWithUpdatedList(list) {
         this.setState(prevState => ({
             listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
+            listKeyPairMarkedForEdit : prevState.listKeyPairMarkedForEdit,
+
             currentList : list,
             sessionData : this.state.sessionData
         }), () => {
@@ -235,6 +245,48 @@ class App extends React.Component {
         let transaction = new MoveSong_Transaction(this, start, end);
         this.tps.addTransaction(transaction);
     }
+
+    
+
+    // ! -------------------
+
+    editSong = (newTitle, newArtist, newID) => {
+        let songToEdit = this.state.listKeyPairMarkedForEdit;
+        if (songToEdit !== null){
+            songToEdit.title = newTitle;
+            songToEdit.artist = newArtist;
+            songToEdit.youTubeId = newID;
+            // Set state to guarantee a re-render with the new song info
+            this.setState((prevState) => ({
+                currentList: prevState.currentList,
+                listKeyPairMarkedForDeletion : null,
+                listKeyPairMarkedForEdit : prevState.listKeyPairMarkedForEdit,
+                sessionData: prevState.sessionData
+            }))
+        }
+        this.hideEditSongModal();
+    }
+
+    addEditSongTransaction = (key, oldTitle, oldArtist, oldID, newTitle, newArtist, newID) => {
+        let transaction = new EditSong_Transaction(this, key, oldTitle, oldArtist, oldID, newTitle, newArtist, newID);
+        this.tps.addTransaction(transaction)
+    }
+
+
+
+    deleteSong(id) {
+        if (this.state.currentList) {
+            console.log('there is a current list')
+            // Grab current selected list
+            let updatedList = this.currentList;
+            updatedList.removeSong(id)
+            this.view.refreshPlaylist(this.currentList);
+        }
+        this.saveLists();
+    }
+
+
+
     // THIS FUNCTION BEGINS THE PROCESS OF PERFORMING AN UNDO
     undo = () => {
         if (this.tps.hasTransactionToUndo()) {
@@ -257,6 +309,7 @@ class App extends React.Component {
         this.setState(prevState => ({
             currentList: prevState.currentList,
             listKeyPairMarkedForDeletion : keyPair,
+            listKeyPairMarkedForEdit : prevState.listKeyPairMarkedForEdit,
             sessionData: prevState.sessionData
         }), () => {
             // PROMPT THE USER
@@ -274,13 +327,42 @@ class App extends React.Component {
         let modal = document.getElementById("delete-list-modal");
         modal.classList.remove("is-visible");
     }
+
+
+
+    // ! -----------
+    markSongForEdit = (keyPair) => {
+        console.log('yes, this is MARK SLIVER')
+
+        this.setState(prevState => ({
+            currentList: prevState.currentList,
+            listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
+            listKeyPairMarkedForEdit : keyPair,
+            sessionData: prevState.sessionData
+        }), () => {
+            // PROMPT THE USER
+            this.showEditSongModal();
+        });
+    }
+    showEditSongModal() {
+        let modal = document.getElementById("edit-song-modal");
+        modal.classList.add("is-visible");
+    }
+    hideEditSongModal() {
+        let modal = document.getElementById("edit-song-modal");
+        modal.classList.remove("is-visible");
+    }
+
+
+
+
     render() {
         let canAddSong = this.state.currentList !== null;
         let canUndo = this.tps.hasTransactionToUndo();
         let canRedo = this.tps.hasTransactionToRedo();
         let canClose = this.state.currentList !== null;
         return (
-            <div id="root">
+            <div id="playlister-root">
                 <Banner />
                 <SidebarHeading
                     createNewListCallback={this.createNewList}
@@ -303,13 +385,20 @@ class App extends React.Component {
                 />
                 <PlaylistCards
                     currentList={this.state.currentList}
-                    moveSongCallback={this.addMoveSongTransaction} />
+                    moveSongCallback={this.addMoveSongTransaction} 
+                    editSongCallback={this.markSongForEdit} 
+                />
                 <Statusbar 
                     currentList={this.state.currentList} />
                 <DeleteListModal
                     listKeyPair={this.state.listKeyPairMarkedForDeletion}
                     hideDeleteListModalCallback={this.hideDeleteListModal}
                     deleteListCallback={this.deleteMarkedList}
+                />
+                <EditSongModal
+                    listKeyPair={this.state.listKeyPairMarkedForEdit}
+                    hideEditSongModalCallback={this.hideEditSongModal}
+                    editSongCallback={this.editSong}
                 />
             </div>
         );
