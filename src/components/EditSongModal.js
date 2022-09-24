@@ -43,7 +43,6 @@ export default class EditSongModal extends Component {
 
 
     componentWillReceiveProps(nextProps) {
-        console.log(nextProps)
         if(nextProps != null){
             this.setState({
                 title: nextProps.listKeyPair?.title,

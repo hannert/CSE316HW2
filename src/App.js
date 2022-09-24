@@ -251,15 +251,18 @@ class App extends React.Component {
     // ! -------------------
 
     editSong = (newTitle, newArtist, newID) => {
-        let songToEdit = this.state.listKeyPairMarkedForEdit;
-        if (songToEdit !== null){
+        console.log(this.state.listKeyPairMarkedForEdit)
+        let songToEdit = this.state.currentList?.songs[this.state.listKeyPairMarkedForEdit];
+        console.log('edit song ' + songToEdit)
+        if (songToEdit != null){
+            console.log(songToEdit)
             songToEdit.title = newTitle;
             songToEdit.artist = newArtist;
             songToEdit.youTubeId = newID;
             // Set state to guarantee a re-render with the new song info
             this.setState((prevState) => ({
                 currentList: prevState.currentList,
-                listKeyPairMarkedForDeletion : null,
+                listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
                 listKeyPairMarkedForEdit : prevState.listKeyPairMarkedForEdit,
                 sessionData: prevState.sessionData
             }))
@@ -267,7 +270,12 @@ class App extends React.Component {
         this.hideEditSongModal();
     }
 
-    addEditSongTransaction = (key, oldTitle, oldArtist, oldID, newTitle, newArtist, newID) => {
+    addEditSongTransaction = (newTitle, newArtist, newID) => {
+        let key = this.state.listKeyPairMarkedForEdit;
+        let oldTitle = this.state.currentList?.songs[key].title;
+        let oldArtist = this.state.currentList?.songs[key].artist;
+        let oldID = this.state.currentList?.songs[key].youTubeId;
+
         let transaction = new EditSong_Transaction(this, key, oldTitle, oldArtist, oldID, newTitle, newArtist, newID);
         this.tps.addTransaction(transaction)
     }
@@ -331,17 +339,19 @@ class App extends React.Component {
 
 
     // ! -----------
-    markSongForEdit = (keyPair) => {
-        console.log('yes, this is MARK SLIVER')
+    markSongForEdit = (index, prompt) => {
+        console.log('yes, this is MARK SLIVER with a index of ' + index)
 
         this.setState(prevState => ({
             currentList: prevState.currentList,
             listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
-            listKeyPairMarkedForEdit : keyPair,
+            listKeyPairMarkedForEdit : index,
             sessionData: prevState.sessionData
         }), () => {
-            // PROMPT THE USER
-            this.showEditSongModal();
+            if (prompt)
+                // PROMPT THE USER
+                this.showEditSongModal();
+           
         });
     }
     showEditSongModal() {
@@ -396,9 +406,9 @@ class App extends React.Component {
                     deleteListCallback={this.deleteMarkedList}
                 />
                 <EditSongModal
-                    listKeyPair={this.state.listKeyPairMarkedForEdit}
+                    listKeyPair={this.state.currentList?.songs[this.state.listKeyPairMarkedForEdit]}
                     hideEditSongModalCallback={this.hideEditSongModal}
-                    editSongCallback={this.editSong}
+                    editSongCallback={this.addEditSongTransaction}
                 />
             </div>
         );

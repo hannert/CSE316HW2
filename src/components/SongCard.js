@@ -56,8 +56,8 @@ export default class SongCard extends React.Component {
 
     handleDoubleClick = (event) => {
         event.stopPropagation();
-        console.log("song doubleclicked!");
-        this.props.editCallback(this.props.song);
+        console.log("song doubleclicked! Index of " + (this.props.index - 1));
+        this.props.editCallback(this.props.index - 1, true);
     }
 
     getItemNum = () => {
