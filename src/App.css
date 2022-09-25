@@ -135,7 +135,7 @@ body {
   font-size:24pt;
 }
 
-.toolbar-button, .toolbar-button-disabled {
+.toolbar-button {
   font-size: 36pt;
   border-width: 1px;
   border-color: black;
@@ -149,7 +149,7 @@ body {
   color:black;
 }
 
-.toolbar-button-disabled {
+.disabled {
   opacity: 0.25; 
   cursor: not-allowed;
 }

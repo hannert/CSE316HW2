@@ -43,6 +43,7 @@ class App extends React.Component {
             listKeyPairMarkedForEdit : null,
             indexMarkedForDeletion : null,
             currentList : null,
+            activeModal : false,
             sessionData : loadedSessionData
         }
     }
@@ -81,6 +82,7 @@ class App extends React.Component {
             listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
             listKeyPairMarkedForEdit : prevState.listKeyPairMarkedForEdit,
             currentList: newList,
+            activeModal: prevState.activeModal,
             sessionData: {
                 nextKey: prevState.sessionData.nextKey + 1,
                 counter: prevState.sessionData.counter + 1,
@@ -119,6 +121,7 @@ class App extends React.Component {
             listKeyPairMarkedForDeletion : null,
             listKeyPairMarkedForEdit : prevState.listKeyPairMarkedForEdit,
             currentList: newCurrentList,
+            activeModal: prevState.activeModal,
             sessionData: {
                 nextKey: prevState.sessionData.nextKey,
                 counter: prevState.sessionData.counter - 1,
@@ -163,6 +166,8 @@ class App extends React.Component {
         this.setState(prevState => ({
             listKeyPairMarkedForDeletion : null,
             listKeyPairMarkedForEdit : prevState.listKeyPairMarkedForEdit,
+            currentList: prevState.currentList,  // ! ---------------
+            activeModal: prevState.activeModal,
             sessionData: {
                 nextKey: prevState.sessionData.nextKey,
                 counter: prevState.sessionData.counter,
@@ -179,24 +184,24 @@ class App extends React.Component {
     }
     // THIS FUNCTION BEGINS THE PROCESS OF LOADING A LIST FOR EDITING
     loadList = (key) => {
+        this.tps.clearAllTransactions();
         let newCurrentList = this.db.queryGetList(key);
         this.setState(prevState => ({
             listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
             listKeyPairMarkedForEdit : prevState.listKeyPairMarkedForEdit,
             currentList: newCurrentList,
+            activeModal: prevState.activeModal,
             sessionData: this.state.sessionData
-        }), () => {
-            // AN AFTER EFFECT IS THAT WE NEED TO MAKE SURE
-            // THE TRANSACTION STACK IS CLEARED
-            this.tps.clearAllTransactions();
-        });
+        }));
     }
     // THIS FUNCTION BEGINS THE PROCESS OF CLOSING THE CURRENT LIST
     closeCurrentList = () => {
+        this.tps.clearAllTransactions();
         this.setState(prevState => ({
             listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
             listKeyPairMarkedForEdit : prevState.listKeyPairMarkedForEdit,
             currentList: null,
+            activeModal: prevState.activeModal,
             sessionData: this.state.sessionData
         }), () => {
             // AN AFTER EFFECT IS THAT WE NEED TO MAKE SURE
@@ -204,12 +209,14 @@ class App extends React.Component {
             this.tps.clearAllTransactions();
         });
     }
+
+
     setStateWithUpdatedList(list) {
         this.setState(prevState => ({
             listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
             listKeyPairMarkedForEdit : prevState.listKeyPairMarkedForEdit,
-
             currentList : list,
+            activeModal: prevState.activeModal,
             sessionData : this.state.sessionData
         }), () => {
             // UPDATING THE LIST IN PERMANENT STORAGE
@@ -280,6 +287,7 @@ class App extends React.Component {
             currentList: prevState.currentList,
             listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
             listKeyPairMarkedForEdit : index,
+            activeModal : prevState.activeModal,
             sessionData: prevState.sessionData
         }), () => {
             if (prompt)
@@ -290,13 +298,29 @@ class App extends React.Component {
             }
         });
     }
-    showEditSongModal() {
+    showEditSongModal = () => {
         let modal = document.getElementById("edit-song-modal");
         modal.classList.add("is-visible");
+        this.setState((prevState) => ({
+            currentList: prevState.currentList,
+            listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
+            listKeyPairMarkedForEdit : prevState.listKeyPairMarkedForEdit,
+            indexMarkedForDeletion : prevState.indexMarkedForDeletion,
+            activeModal : true,
+            sessionData: prevState.sessionData
+        }))
     }
-    hideEditSongModal() {
+    hideEditSongModal = () => {
         let modal = document.getElementById("edit-song-modal");
         modal.classList.remove("is-visible");
+        this.setState((prevState) => ({
+            currentList: prevState.currentList,
+            listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
+            listKeyPairMarkedForEdit : prevState.listKeyPairMarkedForEdit,
+            indexMarkedForDeletion : prevState.indexMarkedForDeletion,
+            activeModal : false,
+            sessionData: prevState.sessionData
+        }))
     }
     addEditSongTransaction = (newTitle, newArtist, newID) => {
         let key = this.state.listKeyPairMarkedForEdit;
@@ -336,6 +360,7 @@ class App extends React.Component {
             listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
             listKeyPairMarkedForEdit : prevState.listKeyPairMarkedForEdit,
             indexMarkedForDeletion : prevState.indexMarkedForDeletion,
+            activeModal : prevState.activeModal,
             sessionData: prevState.sessionData
         }), () => {
             this.hideDeleteSongModal();
@@ -355,14 +380,30 @@ class App extends React.Component {
 
     // THIS FUNCTION SHOWS THE MODAL FOR PROMPTING THE USER
     // TO SEE IF THEY REALLY WANT TO DELETE THE SONG
-    showDeleteSongModal() {
+    showDeleteSongModal = () => {
         let modal = document.getElementById("delete-song-modal");
         modal.classList.add("is-visible");
+        this.setState((prevState) => ({
+            currentList: prevState.currentList,
+            listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
+            listKeyPairMarkedForEdit : prevState.listKeyPairMarkedForEdit,
+            indexMarkedForDeletion : prevState.indexMarkedForDeletion,
+            activeModal : true,
+            sessionData: prevState.sessionData
+        }))
     }
     // THIS FUNCTION IS FOR HIDING THE MODAL
-    hideDeleteSongModal() {
+    hideDeleteSongModal = () => {
         let modal = document.getElementById("delete-song-modal");
         modal.classList.remove("is-visible");
+        this.setState((prevState) => ({
+            currentList: prevState.currentList,
+            listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
+            listKeyPairMarkedForEdit : prevState.listKeyPairMarkedForEdit,
+            indexMarkedForDeletion : prevState.indexMarkedForDeletion,
+            activeModal : false,
+            sessionData: prevState.sessionData
+        }))
     }
 
     addSong = () => {
@@ -376,6 +417,7 @@ class App extends React.Component {
             listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
             listKeyPairMarkedForEdit : prevState.listKeyPairMarkedForEdit,
             indexMarkedForDeletion : prevState.indexMarkedForDeletion,
+            activeModal: prevState.activeModal,
             sessionData: prevState.sessionData
         }), () => {
             this.db.mutationUpdateList(currentList);
@@ -411,6 +453,7 @@ class App extends React.Component {
             currentList: prevState.currentList,
             listKeyPairMarkedForDeletion : keyPair,
             listKeyPairMarkedForEdit : prevState.listKeyPairMarkedForEdit,
+            activeModal: prevState.activeModal,
             sessionData: prevState.sessionData
         }), () => {
             // PROMPT THE USER
@@ -419,25 +462,43 @@ class App extends React.Component {
     }
     // THIS FUNCTION SHOWS THE MODAL FOR PROMPTING THE USER
     // TO SEE IF THEY REALLY WANT TO DELETE THE LIST
-    showDeleteListModal() {
+    showDeleteListModal = () => {
         let modal = document.getElementById("delete-list-modal");
         modal.classList.add("is-visible");
+        this.setState((prevState) => ({
+            currentList: prevState.currentList,
+            listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
+            listKeyPairMarkedForEdit : prevState.listKeyPairMarkedForEdit,
+            indexMarkedForDeletion : prevState.indexMarkedForDeletion,
+            activeModal : true,
+            sessionData: prevState.sessionData
+        }))
     }
     // THIS FUNCTION IS FOR HIDING THE MODAL
-    hideDeleteListModal() {
+    hideDeleteListModal = () => {
         let modal = document.getElementById("delete-list-modal");
         modal.classList.remove("is-visible");
+        this.setState((prevState) => ({
+            currentList: prevState.currentList,
+            listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
+            listKeyPairMarkedForEdit : prevState.listKeyPairMarkedForEdit,
+            indexMarkedForDeletion : prevState.indexMarkedForDeletion,
+            activeModal : false,
+            sessionData: prevState.sessionData
+        }))
     }
 
     render() {
-        let canAddSong = this.state.currentList !== null;
+        
+        let canAddSong = this.state.currentList === null;
         let canUndo = this.tps.hasTransactionToUndo();
         let canRedo = this.tps.hasTransactionToRedo();
-        let canClose = this.state.currentList !== null;
+        let canClose = this.state.currentList === null;
         return (
             <div id="playlister-root">
                 <Banner />
                 <SidebarHeading
+                    disabled={this.state.activeModal}
                     createNewListCallback={this.createNewList}
                 />
                 <SidebarList
@@ -448,6 +509,7 @@ class App extends React.Component {
                     renameListCallback={this.renameList}
                 />
                 <EditToolbar
+                    disabled={this.state.activeModal}
                     canAddSong={canAddSong}
                     canUndo={canUndo}
                     canRedo={canRedo}
