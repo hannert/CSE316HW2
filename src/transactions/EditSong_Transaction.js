@@ -15,12 +15,10 @@ export default class EditSong_Transaction extends jsTPS_Transaction {
 
     doTransaction() {
         // Edit song
-        this.app.markSongForEdit(this.key, false);
-        this.app.editSong(this.newTitle, this.newArtist, this.newID);
+        this.app.markSongForEdit(this.key, false, true, this.newTitle, this.newArtist, this.newID);
     }
     
     undoTransaction() {
-        this.app.markSongForEdit(this.key, false);
-        this.app.editSong(this.oldTitle, this.oldArtist, this.oldID);
+        this.app.markSongForEdit(this.key, false, true, this.oldTitle, this.newArtist, this.oldID);
     }
 }

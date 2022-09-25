@@ -57,52 +57,52 @@ export default class EditSongModal extends Component {
         const { editSongCallback, hideEditSongModalCallback } = this.props;
         return (
             <div 
-                class="modal" 
+                className="modal" 
                 id="edit-song-modal" 
                 data-animation="slideInOutLeft">
-                    <div class="modal-root" id='verify-edit-song-root'>
-                        <div class="modal-north">
+                    <div className="modal-root" id='verify-edit-song-root'>
+                        <div className="modal-north">
                             Edit Song
                         </div>
-                        <div class="modal-center">
-                            <div class="modal-center-content">
-                                <div class="modal-edit-grid">
-                                    <div class="modal-edit-box-text">Title:</div>
+                        <div className="modal-center">
+                            <div className="modal-center-content">
+                                <div className="modal-edit-grid">
+                                    <div className="modal-edit-box-text">Title:</div>
                                         <input 
                                             type="text" 
                                             id="edit-song-title-field" 
-                                            class="modal-text-submission" 
+                                            className="modal-text-submission" 
                                             value={this.state.title || ''}
                                             onChange={this.handleTitleChange}
                                         />
-                                    <div class="modal-edit-box-text">Artist:</div>
+                                    <div className="modal-edit-box-text">Artist:</div>
                                         <input 
                                             type="text" 
                                             id="edit-song-artist-field" 
-                                            class="modal-text-submission" 
+                                            className="modal-text-submission" 
                                             value={this.state.artist || ''}
                                             onChange={this.handleArtistChange}
                                         />
-                                    <div class="modal-edit-box-text">You Tube Id:</div>
+                                    <div className="modal-edit-box-text">You Tube Id:</div>
                                         <input 
                                             type="text" 
                                             id="edit-song-id-field" 
-                                            class="modal-text-submission" 
+                                            className="modal-text-submission" 
                                             value={this.state.id || ''}
                                             onChange={this.handleIDChange}
                                         />
                                 </div>
                             </div>
                         </div>
-                        <div class="modal-south">
+                        <div className="modal-south">
                             <input type="button" 
                                 id="edit-song-confirm-button" 
-                                class="modal-button" 
+                                className="modal-button" 
                                 onClick={() => editSongCallback(this.state.title, this.state.artist, this.state.id)}
                                 value='Confirm' />
                             <input type="button" 
                                 id="edit-song-cancel-button" 
-                                class="modal-button" 
+                                className="modal-button" 
                                 onClick={hideEditSongModalCallback}
                                 value='Cancel' />
                         </div>
