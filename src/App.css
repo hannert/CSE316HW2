@@ -152,6 +152,7 @@ body {
 .disabled {
   opacity: 0.25; 
   cursor: not-allowed;
+  pointer-events: none;
 }
 
 .playlister-song, .playlister-song-dragged-to { 

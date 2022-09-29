@@ -46,7 +46,37 @@ class App extends React.Component {
             activeModal : false,
             sessionData : loadedSessionData
         }
+
+        this.undoHelper = this.undoHelper.bind(this);
+        this.redoHelper = this.redoHelper.bind(this);
+
     }
+    undoHelper(event) {
+        if(event.ctrlKey && event.key === 'z') {
+            if(this.tps.hasTransactionToUndo() === true){
+                console.log("I can UNDO!!!")
+                this.undo();
+                this.forceUpdate();
+            }
+                
+        }
+    }
+
+    redoHelper(event) {
+        if(event.ctrlKey && event.key === 'y') {
+            if(this.tps.hasTransactionToRedo() === true){
+                console.log("Redo")
+                this.redo();
+                this.forceUpdate();
+            }
+        }
+    }
+
+    componentDidMount(){
+        document.addEventListener('keydown', this.undoHelper, false);
+        document.addEventListener('keydown', this.redoHelper, false);
+    }
+
     sortKeyNamePairsByName = (keyNamePairs) => {
         keyNamePairs.sort((keyPair1, keyPair2) => {
             // GET THE LISTS
@@ -58,6 +88,7 @@ class App extends React.Component {
         // FIRST FIGURE OUT WHAT THE NEW LIST'S KEY AND NAME WILL BE
         let newKey = this.state.sessionData.nextKey;
         let newName = "Untitled" + newKey;
+        
 
         // MAKE THE NEW LIST
         let newList = {

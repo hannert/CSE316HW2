@@ -2,6 +2,8 @@ import React from "react";
 import SongCard from './SongCard.js';
 
 export default class PlaylistCards extends React.Component {
+
+
     render() {
         const { 
             currentList, 
