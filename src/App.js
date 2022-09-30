@@ -54,9 +54,11 @@ class App extends React.Component {
     undoHelper(event) {
         if((event.ctrlKey || event.metaKey) && event.key === 'z') {
             if(this.tps.hasTransactionToUndo() === true){
-                console.log("I can UNDO!!!")
-                this.undo();
-                this.forceUpdate();
+                if(!this.state.activeModal){
+                    console.log("I can UNDO!!!")
+                    this.undo();
+                    this.forceUpdate();
+                }
             }
                 
         }
@@ -65,9 +67,11 @@ class App extends React.Component {
     redoHelper(event) {
         if((event.ctrlKey || event.metaKey) && event.key === 'y') {
             if(this.tps.hasTransactionToRedo() === true){
-                console.log("Redo")
-                this.redo();
-                this.forceUpdate();
+                if(!this.state.activeModal){
+                    console.log("Redo")
+                    this.redo();
+                    this.forceUpdate();
+                }
             }
         }
     }
