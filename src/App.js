@@ -52,7 +52,7 @@ class App extends React.Component {
 
     }
     undoHelper(event) {
-        if(event.ctrlKey && event.key === 'z') {
+        if((event.ctrlKey || event.metaKey) && event.key === 'z') {
             if(this.tps.hasTransactionToUndo() === true){
                 console.log("I can UNDO!!!")
                 this.undo();
@@ -63,7 +63,7 @@ class App extends React.Component {
     }
 
     redoHelper(event) {
-        if(event.ctrlKey && event.key === 'y') {
+        if((event.ctrlKey || event.metaKey) && event.key === 'y') {
             if(this.tps.hasTransactionToRedo() === true){
                 console.log("Redo")
                 this.redo();
@@ -312,7 +312,6 @@ class App extends React.Component {
         this.hideEditSongModal();
     }
     markSongForEdit = (index, prompt, now = false, newTitle = '', newArtist = '', newID = '') => {
-        console.log('yes, this is MARK SLIVER with a index of ' + index)
 
         this.setState(prevState => ({
             currentList: prevState.currentList,
