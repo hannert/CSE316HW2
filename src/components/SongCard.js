@@ -41,17 +41,25 @@ export default class SongCard extends React.Component {
         event.preventDefault();
         let target = event.target;
         let targetId = target.id;
-        targetId = targetId.substring(target.id.indexOf("-") + 1);
-        let sourceId = event.dataTransfer.getData("song");
-        sourceId = sourceId.substring(sourceId.indexOf("-") + 1);
-        
-        this.setState(prevState => ({
-            isDragging: false,
-            draggedTo: false
-        }));
+        if(targetId){
+            targetId = targetId.substring(target.id.indexOf("-") + 1);
+            let sourceId = event.dataTransfer.getData("song");
+            sourceId = sourceId.substring(sourceId.indexOf("-") + 1);
+            
+            this.setState(prevState => ({
+                isDragging: false,
+                draggedTo: false
+            }));
 
-        // ASK THE MODEL TO MOVE THE DATA
-        this.props.moveCallback(sourceId, targetId);
+            // ASK THE MODEL TO MOVE THE DATA
+            this.props.moveCallback(sourceId, targetId);
+        }
+        else {
+            this.setState(prevState => ({
+                isDragging: false,
+                draggedTo: false
+            }));
+        }
     }
 
     handleDoubleClick = (event) => {
@@ -84,7 +92,9 @@ export default class SongCard extends React.Component {
                 draggable="true"
             >
                 {num}.
-                <a href = {'https://www.youtube.com/watch?v=' + song.youTubeId}>{song.title} by {song.artist}</a>
+                <a href = {'https://www.youtube.com/watch?v=' + song.youTubeId} draggable='false'>
+                    {song.title} by {song.artist}
+                </a>
                 <input
                     type="button"
                     id={"delete-song-" + index}
